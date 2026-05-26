@@ -1,0 +1,40 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+/* Ambient background */
+.noise {
+  position: fixed;
+  inset: 0;
+  background: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.orb {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.35;
+}
+
+.orb1 {
+  background: #6366f1;
+  top: -120px;
+  left: -120px;
+}
+
+.orb2 {
+  background: #a855f7;
+  bottom: -120px;
+  right: -120px;
+}
+
+.hidden {
+  display: none;
+}

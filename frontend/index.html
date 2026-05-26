@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>InsightForge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#14b8a6",
+              accent: "#22d3ee",
+              surface: "#0b1220",
+              panel: "#07101f",
+              soft: "#0f1a2c",
+              stroke: "#1f2a3d",
+            },
+            boxShadow: {
+              glow: "0 0 0 1px rgba(31,42,61,.7), 0 30px 80px rgba(0,0,0,.55)",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .dots::after {
+        content: "";
+        animation: dots 1.5s infinite;
+      }
+      @keyframes dots {
+        0% {
+          content: "";
+        }
+        33% {
+          content: ".";
+        }
+        66% {
+          content: "..";
+        }
+        100% {
+          content: "...";
+        }
+      }
+
+      .status-pulse {
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 0.65;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .reveal {
+        animation: reveal 0.45s ease-out forwards;
+      }
+      @keyframes reveal {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .glass {
+        background: rgba(7, 16, 31, 0.68);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(31, 42, 61, 0.8);
+      }
+
+      .noise {
+        position: fixed;
+        inset: 0;
+        background: url("https://grainy-gradients.vercel.app/noise.svg");
+        opacity: 0.06;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .orb {
+        position: fixed;
+        width: 520px;
+        height: 520px;
+        border-radius: 999px;
+        filter: blur(160px);
+        opacity: 0.35;
+        z-index: -2;
+      }
+      .orb1 {
+        background: rgba(20, 184, 166, 0.55);
+        top: -180px;
+        left: -180px;
+      }
+      .orb2 {
+        background: rgba(34, 211, 238, 0.55);
+        bottom: -190px;
+        right: -190px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      /* Simple skeleton */
+      .skel {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.06),
+          rgba(255, 255, 255, 0.12),
+          rgba(255, 255, 255, 0.06)
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.15s infinite;
+        border: 1px solid rgba(31, 42, 61, 0.65);
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="bg-surface text-slate-100 min-h-screen overflow-hidden">
+    <div class="noise"></div>
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+
+    <!-- AUTH SCREEN -->
+    <section
+      id="authScreen"
+      class="min-h-screen flex items-center justify-center px-6"
+    >
+      <div class="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+        <!-- Left: Branding -->
+        <div class="space-y-6">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-11 h-11 rounded-2xl bg-primary/15 border border-stroke flex items-center justify-center shadow-glow"
+            >
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 100 100"
+                fill="currentColor"
+                class="text-primary"
+              >
+                <polygon points="50,5 93,27 93,73 50,95 7,73 7,27" />
+                <circle cx="50" cy="50" r="18" fill="#07101f" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold tracking-tight">
+                Insight<span class="text-primary">Forge</span>
+              </p>
+              <p class="text-xs text-slate-400 -mt-0.5">
+                Extract clarity from the web
+              </p>
+            </div>
+          </div>
+
+          <h1
+            class="text-4xl md:text-5xl font-semibold tracking-tight leading-tight"
+          >
+            Turn any URL into <span class="text-primary">clean insight</span>.
+          </h1>
+          <p class="text-slate-300 max-w-xl leading-relaxed">
+            Paste a link — we extract the content, summarize it with AI, tag key
+            topics, and save results for instant reloads.
+          </p>
+
+          <!-- Feature grid -->
+          <div class="grid sm:grid-cols-2 gap-4 pt-2">
+            <div class="glass rounded-2xl p-4">
+              <p class="text-sm font-medium">⚡ Fast repeats</p>
+              <p class="text-xs text-slate-400 mt-1">
+                Redis caching makes already-seen links load almost instantly.
+              </p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <p class="text-sm font-medium">🧠 Structured summaries</p>
+              <p class="text-xs text-slate-400 mt-1">
+                Readable output with takeaways — not a wall of text.
+              </p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <p class="text-sm font-medium">🧷 Topic tagging</p>
+              <p class="text-xs text-slate-400 mt-1">
+                Auto-detected topics help you organize a reading list.
+              </p>
+            </div>
+            <div class="glass rounded-2xl p-4">
+              <p class="text-sm font-medium">🗂️ Saved history</p>
+              <p class="text-xs text-slate-400 mt-1">
+                Quickly reopen previous summaries from the sidebar.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Auth card -->
+        <div class="glass rounded-3xl p-7 md:p-8 shadow-glow">
+          <div class="flex items-center justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-semibold">Welcome back</h2>
+              <p class="text-sm text-slate-400 mt-1">
+                Log in to access your dashboard.
+              </p>
+            </div>
+            <span
+              id="authPill"
+              class="text-xs px-3 py-1 rounded-full bg-soft border border-stroke text-slate-300"
+            >
+              Login
+            </span>
+          </div>
+
+          <!-- Tabs -->
+          <div
+            id="tabsContainer"
+            class="mt-6 grid grid-cols-2 gap-2 p-1 rounded-2xl bg-soft border border-stroke"
+          >
+            <button
+              id="loginTab"
+              class="py-2 rounded-xl text-sm font-medium bg-panel border border-stroke"
+            >
+              Login
+            </button>
+            <button
+              id="signupTab"
+              class="py-2 rounded-xl text-sm font-medium text-slate-300 hover:text-white"
+            >
+              Sign up
+            </button>
+          </div>
+
+          <!-- Login form -->
+          <form id="loginForm" class="mt-6 space-y-4">
+            <div>
+              <label class="text-xs text-slate-400">Username</label>
+              <input
+                id="loginUser"
+                class="mt-2 w-full bg-surface border border-stroke rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                placeholder="enter your name"
+                autocomplete="username"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Password</label>
+              <div class="relative mt-2">
+                <input
+                  id="loginPass"
+                  type="password"
+                  class="w-full bg-surface border border-stroke rounded-xl pl-4 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                  placeholder="enter your password"
+                  autocomplete="current-password"
+                />
+                <button type="button" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-200 toggle-password" data-target="loginPass">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3.5 rounded-xl bg-primary hover:bg-teal-400 active:scale-[0.99] transition font-semibold text-slate-900"
+            >
+              Continue
+            </button>
+
+            <p id="authStatus" class="text-sm text-slate-400"></p>
+
+            <p class="text-xs text-slate-500 leading-relaxed"></p>
+          </form>
+
+          <!-- Signup form -->
+          <form id="signupForm" class="mt-6 space-y-4 hidden">
+            <div>
+              <label class="text-xs text-slate-400">Username</label>
+              <input
+                id="signupUser"
+                class="mt-2 w-full bg-surface border border-stroke rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                placeholder="create a username"
+                autocomplete="username"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Email Address</label>
+              <input
+                id="signupEmail"
+                type="email"
+                class="mt-2 w-full bg-surface border border-stroke rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                placeholder="enter your email address"
+                required
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Password</label>
+              <div class="relative mt-2">
+                <input
+                  id="signupPass"
+                  type="password"
+                  class="w-full bg-surface border border-stroke rounded-xl pl-4 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                  placeholder="create a password"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-200 toggle-password" data-target="signupPass">
+                  👁️
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Confirm Password</label>
+              <div class="relative mt-2">
+                <input
+                  id="signupPassConfirm"
+                  type="password"
+                  class="w-full bg-surface border border-stroke rounded-xl pl-4 pr-10 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                  placeholder="confirm your password"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-200 toggle-password" data-target="signupPassConfirm">
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3.5 rounded-xl bg-primary hover:bg-teal-400 active:scale-[0.99] transition font-semibold text-slate-900"
+            >
+              Create account
+            </button>
+
+            <p id="signupStatus" class="text-sm text-slate-400"></p>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+              This creates a local demo account (saved in your browser).
+            </p>
+          </form>
+
+          <!-- OAuth Details Form -->
+          <form id="oauthForm" class="mt-6 space-y-4 hidden">
+            <div>
+              <label id="oauthEmailLabel" class="text-xs text-slate-400">Email Address</label>
+              <input
+                id="oauthEmail"
+                type="email"
+                class="mt-2 w-full bg-surface border border-stroke rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                placeholder="enter your email"
+                required
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400">Full Name</label>
+              <input
+                id="oauthName"
+                class="mt-2 w-full bg-surface border border-stroke rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/70"
+                placeholder="enter your name"
+                required
+              />
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-3.5 rounded-xl bg-primary hover:bg-teal-400 active:scale-[0.99] transition font-semibold text-slate-900"
+            >
+              Continue
+            </button>
+            <button
+              type="button"
+              id="backToAuthBtn"
+              class="w-full mt-2 text-xs text-slate-400 hover:text-slate-200 transition"
+            >
+              ← Back to Sign In
+            </button>
+          </form>
+
+          <!-- Social Container -->
+          <div id="socialButtonsContainer">
+            <!-- Divider -->
+            <div class="mt-8 flex items-center gap-3">
+              <div class="h-px flex-1 bg-stroke"></div>
+              <span class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Or continue with</span>
+              <div class="h-px flex-1 bg-stroke"></div>
+            </div>
+
+            <!-- Social Buttons -->
+            <div class="mt-6 grid grid-cols-3 gap-3">
+            <!-- Google -->
+            <button type="button" class="oauth-btn flex items-center justify-center py-3 rounded-xl bg-surface border border-stroke hover:bg-soft shadow-sm transition group" data-provider="Google">
+              <svg class="w-5 h-5 opacity-80 group-hover:opacity-100 transition" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            </button>
+            <!-- Facebook -->
+            <button type="button" class="oauth-btn flex items-center justify-center py-3 rounded-xl bg-surface border border-stroke hover:bg-soft shadow-sm transition group" data-provider="Facebook">
+              <svg class="w-5 h-5 opacity-80 group-hover:opacity-100 transition" fill="#1877F2" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </button>
+            <!-- Microsoft -->
+            <button type="button" class="oauth-btn flex items-center justify-center py-3 rounded-xl bg-surface border border-stroke hover:bg-soft shadow-sm transition group" data-provider="Microsoft">
+              <svg class="w-5 h-5 opacity-80 group-hover:opacity-100 transition" viewBox="0 0 21 21"><path fill="#f25022" d="M0 0h10v10H0z"/><path fill="#7fba00" d="M11 0h10v10H11z"/><path fill="#00a4ef" d="M0 11h10v10H0z"/><path fill="#ffb900" d="M11 11h10v10H11z"/></svg>
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- APP SCREEN -->
+    <section id="appScreen" class="hidden">
+      <div class="flex h-screen">
+        <!-- SIDEBAR -->
+        <aside
+          class="w-80 border-r border-stroke bg-panel/70 backdrop-blur p-6 overflow-y-auto"
+        >
+          <div class="flex items-center gap-3 mb-7">
+            <div
+              class="w-10 h-10 rounded-2xl bg-primary/15 border border-stroke flex items-center justify-center"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 100 100"
+                fill="currentColor"
+                class="text-primary"
+              >
+                <polygon points="50,5 93,27 93,73 50,95 7,73 7,27" />
+                <circle cx="50" cy="50" r="18" fill="#07101f" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <div class="flex items-center justify-between">
+                <span class="text-lg font-semibold tracking-tight"
+                  >Insight<span class="text-primary">Forge</span></span
+                >
+              </div>
+              <p class="text-xs text-slate-400">
+                Signed in as <span id="userLabel" class="text-slate-200"></span>
+              </p>
+            </div>
+          </div>
+
+          <button
+            id="logoutBtn"
+            class="w-full mb-4 py-2.5 rounded-xl bg-soft border border-stroke text-sm text-slate-200 hover:bg-surface transition"
+          >
+            Logout
+          </button>
+
+          <button
+            id="sidebarNewBtn"
+            class="w-full mb-3 py-2.5 rounded-xl bg-primary/20 border border-primary/50 text-sm font-medium text-emerald-400 hover:bg-primary/30 transition flex items-center justify-center gap-2"
+          >
+            <span>➕</span> New URL
+          </button>
+
+          <button
+            id="sidebarReportBtn"
+            class="w-full mb-6 py-2.5 rounded-xl bg-accent/20 border border-accent/50 text-sm font-medium text-accent hover:bg-accent/30 transition flex items-center justify-center gap-2"
+          >
+            <span>📊</span> Email Report
+          </button>
+
+          <div class="mb-6 p-4 rounded-xl bg-surface border border-stroke shadow-sm">
+            <h3 class="text-xs font-semibold text-slate-300 mb-2 flex items-center gap-2">ℹ️ Help & Tips</h3>
+            <p class="text-xs text-slate-400 leading-relaxed mb-3">
+              Note: Some URLs cannot be summarized (e.g., Wikipedia, paywalls, private local IPs, or bot-protected pages).
+            </p>
+            <p class="text-xs text-slate-400 leading-relaxed">
+              Sample working URL: <br/>
+              <button id="sampleUrlBtn" class="text-accent hover:text-white hover:underline text-left mt-1 break-all transition">https://www.w3schools.com/cpp/cpp_constructors.asp</button>
+            </p>
+          </div>
+
+          <p class="text-xs text-slate-400 mb-3">Previous Summaries</p>
+          <div id="history" class="space-y-3">
+            <p class="text-xs text-slate-500">No summaries yet.</p>
+          </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="flex-1 overflow-y-auto px-10 py-12">
+          <!-- Top -->
+          <div class="flex items-end justify-between gap-6 mb-10">
+            <div>
+              <h1 class="text-4xl font-semibold tracking-tight">Insight</h1>
+              <p class="mt-2 text-slate-400 max-w-2xl">
+                Paste a URL and generate a clean summary with topics +
+                takeaways.
+              </p>
+            </div>
+            <div class="text-right">
+              <span
+                id="statusPill"
+                class="inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-soft border border-stroke text-slate-300"
+              >
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                Idle
+              </span>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <section class="glass rounded-3xl p-6 md:p-7 shadow-glow">
+            <label class="block text-xs text-slate-400 mb-2">Enter URL</label>
+            <div class="flex flex-col md:flex-row gap-3">
+              <div
+                class="flex-1 flex items-center gap-3 bg-surface border border-stroke rounded-2xl px-4 py-3 focus-within:ring-2 focus-within:ring-primary/60"
+              >
+                <span class="text-slate-400">🔗</span>
+                <input
+                  id="urlInput"
+                  type="url"
+                  placeholder="https://example.com"
+                  class="w-full bg-transparent outline-none text-slate-100 placeholder:text-slate-500"
+                />
+              </div>
+              <button
+                id="analyzeBtn"
+                class="md:w-56 py-3.5 rounded-2xl bg-primary hover:bg-teal-400 active:scale-[0.99] transition font-semibold text-slate-900"
+              >
+                Generate Insight
+              </button>
+            </div>
+
+            <div class="mt-4 flex items-center gap-3">
+              <div
+                id="loader"
+                class="hidden w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"
+              ></div>
+              <p id="status" class="text-sm text-slate-400"></p>
+            </div>
+          </section>
+
+          <!-- RESULT -->
+          <section id="result" class="hidden mt-10 space-y-6">
+            <!-- Tabs -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div
+                class="flex items-center gap-2 p-1 rounded-2xl bg-soft border border-stroke"
+              >
+                <button
+                  id="tabSummary"
+                  class="px-4 py-2 rounded-xl text-sm bg-panel border border-stroke"
+                >
+                  Summary
+                </button>
+                <button
+                  id="tabTakeaways"
+                  class="px-4 py-2 rounded-xl text-sm text-slate-300 hover:text-white"
+                >
+                  Key takeaways
+                </button>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span
+                  id="wordCount"
+                  class="text-xs text-slate-300 bg-soft px-3 py-1 rounded-full border border-stroke hidden"
+                  >0 words</span
+                >
+                <button
+                  id="copyBtn"
+                  class="text-sm text-accent hover:underline"
+                >
+                  Copy
+                </button>
+                <button
+                  id="newBtn"
+                  class="text-sm text-slate-400 hover:text-slate-200"
+                >
+                  New URL
+                </button>
+              </div>
+            </div>
+
+            <div class="grid lg:grid-cols-3 gap-6">
+              <!-- Main card -->
+              <div class="lg:col-span-2 glass rounded-3xl p-7">
+                <div id="summaryView">
+                  <h3 class="text-sm text-slate-400 mb-3">Summary</h3>
+                  <p
+                    id="summary"
+                    class="leading-relaxed text-slate-200 whitespace-pre-wrap"
+                  ></p>
+                </div>
+
+                <div id="takeawaysView" class="hidden">
+                  <h3 class="text-sm text-slate-400 mb-3">Key takeaways</h3>
+                  <ul
+                    id="takeaways"
+                    class="space-y-2 text-slate-200 list-disc pl-5"
+                  ></ul>
+                </div>
+              </div>
+
+              <!-- Side card -->
+              <div class="glass rounded-3xl p-7">
+                <h3 class="text-sm text-slate-400 mb-4">Key Topics</h3>
+                <div id="topics" class="flex flex-wrap gap-2"></div>
+
+                <div class="mt-7">
+                  <h3 class="text-sm text-slate-400 mb-3">Quick stats</h3>
+                  <div class="space-y-2 text-sm">
+                    <div
+                      class="flex items-center justify-between text-slate-300"
+                    >
+                      <span>Words</span>
+                      <span id="statWords">—</span>
+                    </div>
+                    <div
+                      class="flex items-center justify-between text-slate-300"
+                    >
+                      <span>Est. read time</span>
+                      <span id="statRead">—</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Skeleton (shown while waiting) -->
+          <section id="skeleton" class="hidden mt-10 space-y-6">
+            <div class="skel rounded-2xl h-10 w-72"></div>
+            <div class="grid lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2 skel rounded-3xl h-64"></div>
+              <div class="skel rounded-3xl h-64"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </section>
+
+    <script src="app.js"></script>
+  </body>
+</html>

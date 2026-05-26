@@ -1,0 +1,5 @@
+PS D:\InsightForge\worker-python> python -m celery -A celery_app:app worker --loglevel=info --pool=solo
+
+PS D:\InsightForge\backend-node> node index.js
+
+PS D:\InsightForge\worker-python> python -m uvicorn api:fastapi_app --port 8000 --reload
