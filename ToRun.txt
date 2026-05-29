@@ -1,5 +1,49 @@
-PS D:\InsightForge\worker-python> python -m celery -A celery_app:app worker --loglevel=info --pool=solo
+## 🏃 Running the Project
 
-PS D:\InsightForge\backend-node> node index.js
+This project consists of three services:
 
-PS D:\InsightForge\worker-python> python -m uvicorn api:fastapi_app --port 8000 --reload
+### 1️⃣ Start the Python Celery Worker
+
+Open a terminal and run:
+
+```bash
+cd worker-python
+
+python -m celery -A celery_app:app worker --loglevel=info --pool=solo
+```
+
+This worker processes background tasks such as deepfake analysis and model inference.
+
+---
+
+### 2️⃣ Start the Node.js Backend Server
+
+Open a new terminal and run:
+
+```bash
+cd backend-node
+
+node index.js
+```
+
+The backend handles API requests, user management, and communication with other services.
+
+---
+
+### 3️⃣ Start the FastAPI Service
+
+Open another terminal and run:
+
+```bash
+cd worker-python
+
+python -m uvicorn api:fastapi_app --port 8000 --reload
+```
+
+The FastAPI service exposes machine learning endpoints for prediction and model inference.
+
+---
+
+
+Start the services in the following orde
+Once all services are running, the Deepfake Detection System will be ready to process image and video analysis requests.
