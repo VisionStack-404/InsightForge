@@ -124,3 +124,4 @@ Simply open `frontend/index.html` directly in your browser or run it via a local
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
 Developed with ❤️ by [VisionStack-404](https://github.com/VisionStack-404).
+The first pull request
