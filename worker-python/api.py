@@ -63,7 +63,7 @@ class EnqueueRequest(BaseModel):
 def enqueue(req: EnqueueRequest):
     url = normalize_url(req.url)
 
-    # Optional: prevent duplicate processing
+    #
     cached_job = redis_client.get(f"url:{url}")
     if cached_job:
         return {
