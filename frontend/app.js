@@ -367,7 +367,7 @@ function makeTakeaways(text) {
   return unique.slice(0, 6);
 }
 
-/* ---------------- HISTORY ---------------- */
+
 
 function addToHistory(text, url) {
   userHistory.unshift({ url, title: getDomain(url), summary: text });
