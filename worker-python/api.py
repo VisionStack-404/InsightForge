@@ -86,7 +86,7 @@ def enqueue(req: EnqueueRequest):
 
 # =====================================================
 # CHECK JOB STATUS
-# =====================================================
+
 @fastapi_app.get("/status/{job_id}")
 def get_status(job_id: str):
     result = AsyncResult(job_id, app=celery_app)
