@@ -14,8 +14,7 @@ jobs = db["jobs"]
 def send_daily_report_to_user(email: str, name: str):
     print(f"Gathering metrics from MongoDB for {name} ({email})...")
     
-    # Query database for recent analysis jobs to simulate a personalized report
-    # Sorting by _id desc gets the most recent entries
+    
     all_jobs = list(jobs.find({}).sort("_id", -1).limit(7))
     
     total_links = len(all_jobs)
