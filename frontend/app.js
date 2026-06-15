@@ -170,7 +170,7 @@ signupForm?.addEventListener("submit", (e) => {
   signupStatus.className = "text-sm text-emerald-400 mt-2";
   signupStatus.textContent = "✅ Account created. Opening immediately…";
   
-  // Send welcome email using node backend
+  
   sendWelcomeEmail(u, email);
   
   showApp(u);
