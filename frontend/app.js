@@ -13,7 +13,7 @@ const sendWelcomeEmail = async (name, email) => {
   }
 };
 
-/* ---------------- AUTH (FRONTEND DEMO) ---------------- */
+
 
 const authScreen = document.getElementById("authScreen");
 const appScreen = document.getElementById("appScreen");
