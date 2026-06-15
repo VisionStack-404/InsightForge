@@ -56,7 +56,7 @@ def extract_text(url: str) -> str:
         tag.decompose()
 
     text = " ".join(soup.stripped_strings)
-    # Increased limits to handle the full length of much larger pages (approx 10,000 tokens)
+    
     return text[:45000]
 
 
