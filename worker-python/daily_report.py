@@ -3,7 +3,7 @@ import sys
 import requests
 from pymongo import MongoClient
 
-# Database Configuration
+
 MONGO_URL = "mongodb://127.0.0.1:27017"
 DB_NAME = "insightforge"
 
