@@ -62,10 +62,10 @@ def extract_text(url: str) -> str:
 
 def rewrite_with_brain(text: str) -> str:
     prompt = f"""
-You are InsightForge — an AI designed to turn web pages into clear, fast learning insights.
+You are InsightForge — an AI designed to turn the web pages into clear, fast learning insights.
 
 GOAL:
-Help a user understand the essence of a web page in under 30 seconds.
+Help a user understand the essence of a web page in under 20 seconds.
 
 STRICT RULES:
 - Be concise and practical
@@ -73,14 +73,14 @@ STRICT RULES:
 - NO step-by-step tutorials
 - NO storytelling
 - NO repetition
-- Use simple, clear language
+- Use simple, clear language and easy to understand
 - Assume the reader is intelligent but short on time
 -Extract and prioritize the most critical specifications and takeaways from the input below.
 
 OUTPUT FORMAT (MUST FOLLOW EXACTLY):
 
 Summary:
-<3–5 short sentences explaining what this page is about and why it matters>
+<3–8 short sentences explaining what this page is about and why it matters>
 
 Key Topics:
 - <short noun phrase>
@@ -111,7 +111,7 @@ CONTENT (for understanding only):
 
 def extract_topics(summary: str) -> list:
     prompt = f"""
-Extract 5 to 7 important technical topics.
+Extract 5 to 10important technical topics.
 Return ONLY a comma-separated list.
 
 TEXT:
