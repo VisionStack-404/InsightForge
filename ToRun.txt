@@ -4,7 +4,7 @@ This project consists of three services:
 
 ### 1️⃣ Start the Python Celery Worker
 
-Open a terminal and run:
+Open a  First terminal and run:
 
 ```bash
 cd worker-python
@@ -18,7 +18,7 @@ This worker processes background tasks such as deepfake analysis and model infer
 
 ### 2️⃣ Start the Node.js Backend Server
 
-Open a new terminal and run:
+Open a Second terminal and run:
 
 ```bash
 cd backend-node
@@ -32,7 +32,7 @@ The backend handles API requests, user management, and communication with other 
 
 ### 3️⃣ Start the FastAPI Service
 
-Open another terminal and run:
+Open Third terminal and run:
 
 ```bash
 cd worker-python
