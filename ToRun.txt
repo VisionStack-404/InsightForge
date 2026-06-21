@@ -6,7 +6,7 @@ This project consists of three services:
 
 Open a  First terminal and run:
 
-```bash
+{```bash
 cd worker-python
 
 python -m celery -A celery_app:app worker --loglevel=info --pool=solo
@@ -14,7 +14,7 @@ python -m celery -A celery_app:app worker --loglevel=info --pool=solo
 
 This worker processes background tasks such as deepfake analysis and model inference.
 
----
+---}
 
 ### 2️⃣ Start the Node.js Backend Server
 
