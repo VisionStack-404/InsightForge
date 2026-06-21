@@ -20,11 +20,11 @@ This worker processes background tasks such as deepfake analysis and model infer
 
 Open a Second terminal and run:
 
-```bash
+{```bash
 cd backend-node
 
 node index.js
-```
+```}
 
 The backend handles API requests, user management, and communication with other services.
 
