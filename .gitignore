@@ -1,4 +1,4 @@
-# Node.js dependency directories
+# Node.js dependency of directories
 node_modules/
 jspm_packages/
 web_modules/
