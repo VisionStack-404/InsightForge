@@ -10,7 +10,7 @@ from pymongo import MongoClient
 import redis
 import requests
 
-# =====================================================
+
 # FASTAPI APP
 # =====================================================
 fastapi_app = FastAPI()
