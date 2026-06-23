@@ -3,7 +3,7 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Serve the frontend folder (note: folder name is `forntend` in the project)
+// Serve  frontend folder (note: folder name is `forntend` in the project)
 app.use(express.static(path.join(__dirname, "forntend")));
 // Parse JSON request bodies
 app.use(express.json());
