@@ -1,4 +1,4 @@
-## 🏃 Running the Project
+## 🏃 Running the InsightForge
 
 This project consists of three services:
 
