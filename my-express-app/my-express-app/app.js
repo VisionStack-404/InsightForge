@@ -32,7 +32,7 @@ app.post("/summarise", async (req, res) => {
          return res.json({ status: 'processing', message: 'Summary is being generated...' });
       }
 
-      // Fallback: mocked response so the frontend gets valid JSON while pipeline is missing
+      // Fallback: mocked response so  frontend gets valid JSON while pipeline is missing
       const mockedSummary = `Mocked summary for ${url}`;
       return res.json({ status: 'done', summary: mockedSummary });
    } catch (err) {
