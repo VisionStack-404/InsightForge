@@ -18,7 +18,7 @@ app.post("/summarise", async (req, res) => {
          return res.status(400).json({ status: "no-url", error: 'missing url in request body' });
       }
 
-      // Defensive: if Summary (DB model) isn't defined yet, skip DB lookup
+      // Defensive: if Summary of (DB model) isn't defined yet, skip DB lookup
       if (typeof Summary !== 'undefined' && Summary && typeof Summary.findOne === 'function') {
          const existing = await Summary.findOne({ url });
          if (existing) {
