@@ -26,7 +26,7 @@ app.post("/summarise", async (req, res) => {
          }
       }
 
-      // Defensive: if redisClient exists, push job; otherwise skip and return processing
+      // Defensive: if the  redisClient exists, push job; otherwise skip and return processing
       if (typeof redisClient !== 'undefined' && redisClient && typeof redisClient.lPush === 'function') {
          await redisClient.lPush('summary_jobs', url);
          return res.json({ status: 'processing', message: 'Summary is being generated...' });
