@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pythonApi = require("../services/pythonApi");
 
-// Submit URL
+// Submit the  URL(Uniform resource loacator)
 router.post("/submit", async (req, res) => {
   try {
     const { url } = req.body;
