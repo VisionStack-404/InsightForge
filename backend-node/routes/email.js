@@ -9,7 +9,7 @@ router.post("/welcome", async (req, res) => {
   try {
     let transporter;
     
-    // Auto-detect production settings or use a simulator
+    // Auto-detect production settings or use a simulators
     if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
       transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST,
