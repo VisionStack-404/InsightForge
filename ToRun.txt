@@ -1,6 +1,6 @@
 ## 🏃 Running the InsightForge
 
-This project consists of three services:
+This project consists of three services to run it:
 
 ### 1️⃣ Start the Python Celery Worker
 
