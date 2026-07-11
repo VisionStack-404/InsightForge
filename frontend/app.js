@@ -15,7 +15,7 @@ const sendWelcomeEmail = async (name, email) => {
 
 
 
-const authScreen = document.getElementById("authScreen");
+const auth = document.getElementById("auth");
 const appScreen = document.getElementById("appScreen");
 
 const loginTab = document.getElementById("loginTab");
