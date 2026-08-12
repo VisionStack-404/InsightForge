@@ -3,3 +3,4 @@ redis
 requests
 beautifulsoup4
 readability-lxml
+fastapi
