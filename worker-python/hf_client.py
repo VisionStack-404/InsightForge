@@ -3,7 +3,7 @@ import requests
 
 HF_TOKEN = os.getenv("HF_API_TOKEN")
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
-
+#definig the summarize function
 def summarize(text):
     response = requests.post(
         "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
@@ -12,7 +12,7 @@ def summarize(text):
         timeout=30
     )
     return response.json()[0]["summary_text"]
-
+#defining the classify function 
 def classify(text):
     response = requests.post(
         "https://api-inference.huggingface.co/models/facebook/bart-large-mnli",
