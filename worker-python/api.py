@@ -15,9 +15,9 @@ import requests
 
 fastapi_app = FastAPI()
 
-# =====================================================
+
 # CORS (REQUIRED FOR BROWSER)
-# =====================================================
+
 fastapi_app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],          # ⚠️ allow all for the development
