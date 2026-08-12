@@ -10,7 +10,7 @@ DB_NAME = "insightforge"
 mongo = MongoClient(MONGO_URL)
 db = mongo[DB_NAME]
 jobs = db["jobs"]
-
+# creation of the send_dailu_report_to_user function
 def send_daily_report_to_user(email: str, name: str):
     print(f"Gathering metrics from MongoDB for {name} ({email})...")
     
