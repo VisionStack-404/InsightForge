@@ -1,6 +1,6 @@
 // In production, these should be replaced with your actual deployed URLs
 // For Vercel, the Node backend was deployed to: https://backend-node-black-one.vercel.app
-const API_BASE = "https://insight-forge-python-api.onrender.com"; // Placeholder for future Render deployment
+const API_BASE = "https://worker-python-zeta.vercel.app";
 const NODE_API_BASE = "https://backend-node-black-one.vercel.app";
 
 
@@ -542,98 +542,63 @@ async function submitUrl() {
   status.innerText = "Analyzing";
 
   try {
-    const res = await fetch(`${API_BASE}/enqueue`, {
+    const res = await fetch(`${API_BASE}/api/summarize`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
     });
 
     const data = await res.json();
-    jobId = data.jobId;
+    loader.classList.add("hidden");
+    skeleton.classList.add("hidden");
 
-    status.innerText = data.cached
-      ? "⚡ Loading from cache"
-      : "🧠 Processing with AI";
-    setPill(
-      data.cached ? "Cache hit" : "Processing",
-      data.cached ? "bg-cyan-300" : "bg-teal-400",
-    );
+    if (data.status === "SUCCESS") {
+      summary.innerText = data.summary;
+      renderTakeaways(data.summary);
 
-    startPolling(url);
-  } catch {
+      topics.innerHTML = "";
+
+      const words = data.wordCount ?? data.summary.trim().split(/\s+/).length;
+
+      wordCountEl.innerText = `${words} words`;
+      wordCountEl.classList.remove("hidden");
+
+      // Stats
+      statWords.textContent = String(words);
+      statRead.textContent = estimateReadTime(words);
+
+      (data.topics || []).forEach((topic) => {
+        const tag = document.createElement("span");
+        tag.className =
+          "px-3 py-1 rounded-full bg-soft border border-stroke text-xs text-slate-200";
+        tag.innerText = topic;
+        topics.appendChild(tag);
+      });
+
+      addToHistory(data.summary, url);
+
+      result.classList.remove("hidden");
+      result.classList.add("reveal");
+
+      setPill("Done", "bg-emerald-400");
+      status.className = "text-sm text-emerald-400";
+      status.innerText = "✅ Done";
+    } else {
+      setPill("Failed", "bg-yellow-400");
+      status.className = "text-sm text-yellow-400";
+      status.innerText =
+        "❌ This URL couldn’t be summarized (private/restricted/unsupported). Public HTTPS only.";
+    }
+  } catch (err) {
     loader.classList.add("hidden");
     skeleton.classList.add("hidden");
     setPill("Server offline", "bg-red-400");
     status.className = "text-sm text-red-400";
-    status.innerText = "❌ Server unavailable.";
+    status.innerText = "❌ Server unavailable or timed out.";
+    console.error(err);
   }
 }
 
-/* ---------------- POLLING ---------------- */
-
-function startPolling(url) {
-  clearInterval(poller);
-  poller = setInterval(() => checkStatus(url), 2000);
-}
-
-async function checkStatus(url) {
-  const res = await fetch(`${API_BASE}/status/${jobId}`);
-  const data = await res.json();
-
-  if (data.status === "SUCCESS" || data.status === "FAILED") {
-    clearInterval(poller);
-    fetchResult(url);
-  }
-}
-
-/* ---------------- RESULT ---------------- */
-
-async function fetchResult(url) {
-  loader.classList.add("hidden");
-
-  const res = await fetch(`${API_BASE}/result/${jobId}`);
-  const data = await res.json();
-
-  skeleton.classList.add("hidden");
-
-  if (data.status === "SUCCESS") {
-    summary.innerText = data.summary;
-    renderTakeaways(data.summary);
-
-    topics.innerHTML = "";
-
-    const words = data.wordCount ?? data.summary.trim().split(/\s+/).length;
-
-    wordCountEl.innerText = `${words} words`;
-    wordCountEl.classList.remove("hidden");
-
-    // Stats
-    statWords.textContent = String(words);
-    statRead.textContent = estimateReadTime(words);
-
-    (data.topics || []).forEach((topic) => {
-      const tag = document.createElement("span");
-      tag.className =
-        "px-3 py-1 rounded-full bg-soft border border-stroke text-xs text-slate-200";
-      tag.innerText = topic;
-      topics.appendChild(tag);
-    });
-
-    addToHistory(data.summary, url);
-
-    result.classList.remove("hidden");
-    result.classList.add("reveal");
-
-    setPill("Done", "bg-emerald-400");
-    status.className = "text-sm text-emerald-400";
-    status.innerText = "✅ Done";
-  } else {
-    setPill("Failed", "bg-yellow-400");
-    status.className = "text-sm text-yellow-400";
-    status.innerText =
-      "❌ This URL couldn’t be summarized (private/restricted/unsupported). Public HTTPS only.";
-  }
-}
 
 /* ---------------- ACTIONS ---------------- */
 

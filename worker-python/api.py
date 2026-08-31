@@ -1,52 +1,121 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from celery.result import AsyncResult
 from urllib.parse import urlparse
-
-from celery_app import app as celery_app
-from tasks import scrape_url
-from pymongo import MongoClient
-import redis
 import requests
+from readability import Document
+from bs4 import BeautifulSoup
+import os
+from groq import Groq
+import uuid
 
-
+# =====================================================
 # FASTAPI APP
-
+# =====================================================
 fastapi_app = FastAPI()
 
-
+# =====================================================
 # CORS (REQUIRED FOR BROWSER)
-
+# =====================================================
 fastapi_app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],          # ⚠️ allow all for the development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# =====================================================
-# REDIS
-# =====================================================
-import os
-REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
-redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
+# =========================
+# CLIENTS & CONFIG
+# =========================
+groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+GROQ_MODEL = "llama-3.1-8b-instant"
 
-# =====================================================
-# MONGODB
-# =====================================================
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017")
-mongo = MongoClient(MONGO_URI)
-db = mongo["insightforge"]
-jobs = db["jobs"]
-
-# =====================================================
+# =========================
 # HELPERS
-# =====================================================
+# =========================
 def normalize_url(url: str) -> str:
     parsed = urlparse(url)
     return f"{parsed.scheme}://{parsed.netloc}{parsed.path}".rstrip("/")
+
+def extract_text(url: str) -> str:
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    }
+    response = requests.get(url, headers=headers, timeout=15)
+    response.raise_for_status()
+
+    doc = Document(response.text)
+    html = doc.summary()
+    soup = BeautifulSoup(html, "html.parser")
+
+    for tag in soup(["script", "style", "noscript"]):
+        tag.decompose()
+
+    text = " ".join(soup.stripped_strings)
+    return text[:45000]
+
+def rewrite_with_brain(text: str) -> str:
+    prompt = f"""
+You are InsightForge — an AI designed to turn web pages into clear, fast learning insights.
+
+GOAL:
+Help a user understand the essence of a web page in under 30 seconds.
+
+STRICT RULES:
+- Be concise and practical
+- NO history unless essential
+- NO step-by-step tutorials
+- NO storytelling
+- NO repetition
+- Use simple, clear language
+- Assume the reader is intelligent but short on time
+- Extract and prioritize the most critical specifications and takeaways from the input below.
+
+OUTPUT FORMAT (MUST FOLLOW EXACTLY):
+
+Summary:
+<3–5 short sentences explaining what this page is about and why it matters>
+
+Key Topics:
+- <short noun phrase>
+- <short noun phrase>
+- <short noun phrase>
+- <short noun phrase>
+- <short noun phrase>
+
+Who this is for:
+<one short sentence>
+
+IMPORTANT:
+If content is long or complex, compress harder.
+
+CONTENT (for understanding only):
+{text}
+"""
+    response = groq_client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.25
+    )
+    return response.choices[0].message.content.strip()
+
+def extract_topics(summary: str) -> list:
+    prompt = f"""
+Extract 5 to 7 important technical topics.
+Return ONLY a comma-separated list.
+
+TEXT:
+{summary}
+"""
+    response = groq_client.chat.completions.create(
+        model=GROQ_MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.1
+    )
+    return [t.strip() for t in response.choices[0].message.content.split(",") if t.strip()]
 
 # =====================================================
 # REQUEST MODEL
@@ -54,97 +123,47 @@ def normalize_url(url: str) -> str:
 class EnqueueRequest(BaseModel):
     url: str
 
-# =====================================================
-# ENQUEUE URL
-# =====================================================
-@fastapi_app.post("/enqueue")
-def enqueue(req: EnqueueRequest):
-    url = normalize_url(req.url)
-
-    #
-    cached_job = redis_client.get(f"url:{url}")
-    if cached_job:
-        return {
-            "jobId": cached_job,
-            "cached": True
-        }
-
-    task = scrape_url.delay(url)
-
-    redis_client.setex(
-        f"url:{url}",
-        3600,
-        task.id
-    )
-
-    return {
-        "jobId": task.id,
-        "cached": False
-    }
-
-# =====================================================
-# CHECK JOB STATUS
-
-@fastapi_app.get("/status/{job_id}")
-def get_status(job_id: str):
-    result = AsyncResult(job_id, app=celery_app)
-
-    if result.state == "PENDING":
-        return {"status": "PENDING"}
-
-    if result.state == "SUCCESS":
-        return {"status": "SUCCESS"}
-
-    if result.state == "FAILURE":
-        return {"status": "FAILED"}
-
-    return {"status": result.state}
-
-# =====================================================
-# FETCH FINAL RESULT
-# =====================================================
-@fastapi_app.get("/result/{job_id}")
-def get_result(job_id: str):
-    doc = jobs.find_one(
-        {"jobId": job_id},
-        {"_id": 0}   # ❗ remove Mongo ObjectId
-    )
-
-    if not doc:
-        return {"status": "NOT_FOUND"}
-
-    return doc
-
-# =====================================================
-# TRIGGER REPORT EMAIL
-# =====================================================
 class ReportRequest(BaseModel):
     name: str
     email: str
 
-@fastapi_app.post("/trigger-report")
-def trigger_report(req: ReportRequest):
-    all_jobs = list(jobs.find({}).sort("_id", -1).limit(7))
-    total_links = len(all_jobs)
-    words_summarized = sum([j.get('wordCount', 0) for j in all_jobs])
-    read_time_saved = f"{max(1, words_summarized // 200)} mins"
-    
-    recent_links = [{"url": j["url"], "title": j.get("url")} for j in all_jobs]
-
-    payload = {
-        "email": req.email,
-        "name": req.name,
-        "stats": {
-            "totalLinks": total_links,
-            "wordsSummarized": words_summarized,
-            "readTimeSaved": read_time_saved
-        },
-        "recentLinks": recent_links
-    }
+# =====================================================
+# SYNCHRONOUS SUMMARIZE ENDPOINT
+# =====================================================
+@fastapi_app.post("/api/summarize")
+def summarize_endpoint(req: EnqueueRequest):
+    url = normalize_url(req.url)
+    job_id = str(uuid.uuid4())
 
     try:
-        res = requests.post("http://localhost:5000/api/email/report", json=payload)
-        res.raise_for_status()
-        return {"status": "SUCCESS"}
+        raw_text = extract_text(url)
+        summary = rewrite_with_brain(raw_text)
+        topics = extract_topics(summary)
+
+        return {
+            "jobId": job_id,
+            "url": url,
+            "status": "SUCCESS",
+            "summary": summary,
+            "topics": topics,
+            "wordCount": len(summary.split())
+        }
     except Exception as e:
-        return {"status": "FAILED", "error": str(e)}
+        return {
+            "jobId": job_id,
+            "url": url,
+            "status": "FAILED",
+            "error": str(e)
+        }
+
+# =====================================================
+# MOCK TRIGGER REPORT EMAIL (STATELESS)
+# =====================================================
+@fastapi_app.post("/trigger-report")
+def trigger_report(req: ReportRequest):
+    return {"status": "SUCCESS", "message": "Triggered via Node.js backend normally. This route is a placeholder."}
+
+# =====================================================
+# VERCEL COMPATIBILITY
+# =====================================================
+app = fastapi_app
