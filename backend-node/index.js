@@ -15,6 +15,9 @@ const emailRoutes = require("./routes/email");
 app.use("/api/email", emailRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Node Gateway running on port ${PORT}`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Node Gateway running on port ${PORT}`);
+  });
+}
+module.exports = app;

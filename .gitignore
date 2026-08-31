@@ -42,3 +42,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.swp
+
+.vercel

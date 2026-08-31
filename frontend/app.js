@@ -1,5 +1,8 @@
-const API_BASE = "http://localhost:8000";
-const NODE_API_BASE = "http://localhost:5000";
+// In production, these should be replaced with your actual deployed URLs
+// For Vercel, the Node backend was deployed to: https://backend-node-black-one.vercel.app
+const API_BASE = "https://insight-forge-python-api.onrender.com"; // Placeholder for future Render deployment
+const NODE_API_BASE = "https://backend-node-black-one.vercel.app";
+
 
 const sendWelcomeEmail = async (name, email) => {
   try {

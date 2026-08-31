@@ -29,17 +29,15 @@ fastapi_app.add_middleware(
 # =====================================================
 # REDIS
 # =====================================================
-redis_client = redis.Redis(
-    host="localhost",
-    port=6379,
-    db=0,
-    decode_responses=True
-)
+import os
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+redis_client = redis.Redis.from_url(REDIS_URL, decode_responses=True)
 
 # =====================================================
 # MONGODB
 # =====================================================
-mongo = MongoClient("mongodb://127.0.0.1:27017")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017")
+mongo = MongoClient(MONGO_URI)
 db = mongo["insightforge"]
 jobs = db["jobs"]
 
