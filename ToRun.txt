@@ -30,6 +30,7 @@ The backend handles API requests, user management, and communication with other 
 
 ---
 
+
 ### 3️⃣ Start the FastAPI Service
 
 Open Third terminal and run:
